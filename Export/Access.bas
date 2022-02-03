@@ -10,6 +10,7 @@ Public Const KEY_TABLE_NAME As String = "metaKeys"
 Public Const TRACKS_TABLE_NAME As String = "metaTracks"
 
 Public Const TRACK_FIELD_NAME As String = "TrackFK"
+Public Const COMMIT_FIELD_NAME  As String = "CommitFK"
 Public Const KEY_FIELD_NAME As String = "KeyFK"
 Public Const VALID_UNTIL_FIELD_NAME As String = "ValidUntil"
         

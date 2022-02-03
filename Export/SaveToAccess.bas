@@ -78,7 +78,7 @@ End Sub
 
 Private Sub GenerateTrackingRecord(ByVal db As ADODB.Connection, ByVal groupChanges As GroupedDatabaseChange)
     Dim sql As String
-    sql = "INSERT INTO " & Access.TRACKS_TABLE_NAME & " (ValidFrom, ValidUntil, CommitFK, KeyFK, TableName) VALUES (#" & Format$(Now(), "yyyy/mm/dd") & "#, #9999/12/31#, " & groupChanges.CommitFK & ", " & groupChanges.KeyFK & ", '" & groupChanges.TableName & "');"
+    sql = "INSERT INTO " & Access.TRACKS_TABLE_NAME & " (ValidFrom, ValidUntil, " & Access.COMMIT_FIELD_NAME & ", KeyFK, TableName) VALUES (#" & Format$(Now(), "yyyy/mm/dd") & "#, #9999/12/31#, " & groupChanges.CommitFK & ", " & groupChanges.KeyFK & ", '" & groupChanges.TableName & "');"
     db.Execute sql
     
     Dim trackFK As Long

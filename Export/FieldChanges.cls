@@ -105,7 +105,7 @@ Private Sub CompareField(ByRef AfterArray As Variant, ByVal Row As Long, ByVal C
             .Key = this.BeforeArray(Row + 1, 1)
             .ColumnName = this.BeforeArray(1, Column)
             .Before = Before
-            If VarType = vbDate Then
+            If VarType = vbDate And Not IsEmpty(After) Then
                 .After = CDate(After)
             Else
                 .After = After

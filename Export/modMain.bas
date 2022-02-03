@@ -12,6 +12,7 @@ Public Sub Start()
         tc.StartTracking
     End If
     
+    Exit Sub
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Worksheets(1).ListObjects(1).Parent
     ws.Range("B2").Value2 = ws.Range("B2").Value2 & "z"
@@ -71,6 +72,10 @@ Public Sub Save()
     Access.GetConnection DoClose:=True
     
     tc.ResetTracking
+End Sub
+
+Public Sub Reset()
+    GetTrackChangesObject.ResetTracking
 End Sub
 
 ' Private Methods
