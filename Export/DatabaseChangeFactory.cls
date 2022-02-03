@@ -15,16 +15,19 @@ Option Explicit
 Private Type TState
     Schema As Collection
     Keys As Collection
+    LookupTables As LookupTables
 End Type
 
-Private This As TState
+Private this As TState
 
 ' Ctor
 Private Sub Class_Initialize()
-    Set This.Schema = New Collection
-    Set This.Keys = New Collection
+    Set this.Schema = New Collection
+    Set this.Keys = New Collection
+    Set this.LookupTables = New LookupTables
     LoadSchema
     LoadKeys
+    this.LookupTables.Load Access.GetConnection
 End Sub
 
 ' Public Methods
@@ -35,12 +38,13 @@ End Function
 Public Function TranslateChange(ByVal FieldChange As FieldChange) As DatabaseChange
     Dim SchemaItem As SchemaItem
     
-    Set TranslateChange = New DatabaseChange
-    Set SchemaItem = This.Schema(FieldChange.ColumnName)
+    Dim result As New DatabaseChange
+    Set result = New DatabaseChange
+    Set SchemaItem = this.Schema(FieldChange.ColumnName)
     
-    With TranslateChange
+    With result
         .KeyName = FieldChange.Key
-        .KeyFK = This.Keys(FieldChange.Key)
+        .KeyFK = this.Keys(FieldChange.Key)
         .trackFK = -1
         .TableName = SchemaItem.TableName
         .FieldName = SchemaItem.FieldName
@@ -50,7 +54,15 @@ Public Function TranslateChange(ByVal FieldChange As FieldChange) As DatabaseCha
         Else
             .Value = FieldChange.After
         End If
+        
+        Dim lkpTable As String
+        lkpTable = this.Schema(FieldChange.ColumnName).Lookup
+        If lkpTable <> vbNullString Then
+            .Value = CLng(this.LookupTables.Items(lkpTable).Items(FieldChange.After))
+        End If
     End With
+    
+    Set TranslateChange = result
 End Function
 
 Public Sub TranslateChanges(ByVal dbChanges As DatabaseChanges, ByVal FieldChanges As FieldChanges)
@@ -76,21 +88,21 @@ End Sub
 Private Sub LoadSchema()
     Dim InputLine As String
     
-    Set This.Schema = New Collection
+    Set this.Schema = New Collection
     
     Open SCHEMA_PATH For Input As #1
     Do Until EOF(1)
         Line Input #1, InputLine
         With New SchemaItem
             .SetFromString InputLine
-            This.Schema.Add item:=.Self, Key:=.ColumnName
+            this.Schema.Add Item:=.Self, Key:=.ColumnName
         End With
     Loop
     Close #1
 End Sub
 
 Private Sub LoadKeys()
-    CollectionClear This.Keys
+    CollectionClear this.Keys
     
     Dim Recordset As ADODB.Recordset
     Dim sql As String
@@ -100,7 +112,7 @@ Private Sub LoadKeys()
 
     If Not Recordset.BOF And Not Recordset.EOF Then
         Do While Not Recordset.EOF
-            This.Keys.Add item:=Recordset.fields(0).Value, Key:=Recordset.fields(1).Value
+            this.Keys.Add Item:=Recordset.fields(0).Value, Key:=Recordset.fields(1).Value
             Recordset.MoveNext
         Loop
     End If
@@ -114,7 +126,7 @@ Private Function CheckKeys(ByVal FieldChanges As FieldChanges) As Boolean
     
     Dim fc As FieldChange
     For Each fc In FieldChanges.Items
-        If CollectionExists(fc.Key, This.Keys) = False Then
+        If CollectionExists(fc.Key, this.Keys) = False Then
             MsgBox "Orphaned key found = '" & fc.Key & "'", vbExclamation + vbOKOnly
             CheckKeys = False
             Exit Function
@@ -127,7 +139,7 @@ Private Function CheckColumns(ByVal FieldChanges As FieldChanges) As Boolean
     
     Dim fc As FieldChange
     For Each fc In FieldChanges.Items
-        If CollectionExists2(fc.ColumnName, This.Schema) = False Then
+        If CollectionExists2(fc.ColumnName, this.Schema) = False Then
             MsgBox "Orphaned column found = '" & fc.ColumnName & "'", vbExclamation + vbOKOnly
             CheckColumns = False
             Exit Function

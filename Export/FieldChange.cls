@@ -18,55 +18,55 @@ Private Type TFieldChange
     After As Variant
 End Type
 
-Private This As TFieldChange
+Private this As TFieldChange
 
 ' Properties
 Public Property Get Key() As String
-    Key = This.Key
+    Key = this.Key
 End Property
 
 Public Property Let Key(ByVal RHS As String)
-    This.Key = RHS
+    this.Key = RHS
 End Property
 
 Public Property Get ColumnName() As String
-    ColumnName = This.ColumnName
+    ColumnName = this.ColumnName
 End Property
 
 Public Property Let ColumnName(ByVal RHS As String)
-    This.ColumnName = RHS
+    this.ColumnName = RHS
 End Property
 
 Public Property Get Before() As Variant
-    If IsObject(This.Before) Then
-        Set Before = This.Before
+    If IsObject(this.Before) Then
+        Set Before = this.Before
     Else
-        Before = This.Before
+        Before = this.Before
     End If
 End Property
 
 Public Property Let Before(ByVal RHS As Variant)
-    This.Before = RHS
+    this.Before = RHS
 End Property
 
 Public Property Set Before(ByVal RHS As Variant)
-    Set This.Before = RHS
+    Set this.Before = RHS
 End Property
 
 Public Property Get After() As Variant
-    If IsObject(This.After) Then
-        Set After = This.After
+    If IsObject(this.After) Then
+        Set After = this.After
     Else
-        After = This.After
+        After = this.After
     End If
 End Property
 
 Public Property Let After(ByVal RHS As Variant)
-    This.After = RHS
+    this.After = RHS
 End Property
 
 Public Property Set After(ByVal RHS As Variant)
-    Set This.After = RHS
+    Set this.After = RHS
 End Property
 
 ' Public Methods

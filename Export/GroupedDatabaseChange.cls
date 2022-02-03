@@ -20,51 +20,51 @@ Private Type TGroupedDatabaseChange
     Items As Collection
 End Type
 
-Private This As TGroupedDatabaseChange
+Private this As TGroupedDatabaseChange
 
 ' Properties
 Public Property Get Name() As String
-    Name = This.Name
+    Name = this.Name
 End Property
 
 Public Property Let Name(ByVal RHS As String)
-    This.Name = RHS
+    this.Name = RHS
 End Property
 
 Public Property Get KeyName() As String
-    KeyName = This.KeyName
+    KeyName = this.KeyName
 End Property
 
 Public Property Get KeyFK() As Long
-    KeyFK = This.KeyFK
+    KeyFK = this.KeyFK
 End Property
 
 Public Property Get TableName() As String
-    TableName = This.TableName
+    TableName = this.TableName
 End Property
 
 Public Property Get CommitFK() As Long
-    CommitFK = This.CommitFK
+    CommitFK = this.CommitFK
 End Property
 
 Public Property Let CommitFK(ByVal RHS As Long)
-    This.CommitFK = RHS
+    this.CommitFK = RHS
 End Property
 
 Public Property Get trackFK() As Long
-    trackFK = This.trackFK
+    trackFK = this.trackFK
 End Property
 
 Public Property Let trackFK(ByVal RHS As Long)
-    This.trackFK = RHS
+    this.trackFK = RHS
 End Property
 
 Public Property Get Items() As Collection
-    Set Items = This.Items
+    Set Items = this.Items
 End Property
 
 Private Sub Class_Initialize()
-    Set This.Items = New Collection
+    Set this.Items = New Collection
 End Sub
 
 ' Public Methods
@@ -89,9 +89,9 @@ Private Sub SetGroupFromFirstItem()
         Dim firstItem As DatabaseChange
         Set firstItem = Items(1)
         With firstItem
-            This.KeyName = .KeyName
-            This.KeyFK = .KeyFK
-            This.TableName = .TableName
+            this.KeyName = .KeyName
+            this.KeyFK = .KeyFK
+            this.TableName = .TableName
         End With
     End If
 End Sub

@@ -22,7 +22,7 @@ Public Function AddOrGetWorksheet(ByVal worksheetName As String) As Worksheet
     
     prevWS.Activate
     
-    ws.Visible = xlSheetVeryHidden
+    'ws.Visible = xlSheetVeryHidden
     
     Set AddOrGetWorksheet = ws
 End Function

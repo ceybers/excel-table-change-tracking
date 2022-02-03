@@ -1,5 +1,6 @@
 # Notes
 
+## Initial Process
 0. Click "Start Session"
 1. Copy listobject -> arr
 2. Create bufferBefore worksheet
@@ -19,3 +20,6 @@
 16. Create new temporary tblUpdRef* (ask if 1x for all, or 1x tank)
 17. Create 1x tblTrack and 1x tblDetail row for each tankCode×tblDetail pair
 18. Finished!
+
+## Second Attempt after first Implementation
+* Might need to implement a faux-ORM, just to handle Lookup fields, and type-casting on a per-column basis, due to Excel trying to autoconvert numerical strings back into numbers (e.g. order numbers, equipment numbers, etc.)

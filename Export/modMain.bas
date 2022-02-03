@@ -11,7 +11,15 @@ Public Sub Start()
     If Not tc Is Nothing Then
         tc.StartTracking
     End If
-    'ThisWorkbook.Worksheets(1).ListObjects(1).Parent.Range("B2").Value2 = ThisWorkbook.Worksheets(1).ListObjects(1).Parent.Range("B2").Value2 & "z"
+    
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Worksheets(1).ListObjects(1).Parent
+    ws.Range("B2").Value2 = ws.Range("B2").Value2 & "z"
+    If ws.Range("E2").Value2 = "Yes" Then
+        ws.Range("E2").Value2 = "No"
+    Else
+        ws.Range("E2").Value2 = "Yes"
+    End If
 End Sub
 
 Public Sub HighlightChanges()

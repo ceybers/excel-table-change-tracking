@@ -15,17 +15,17 @@ Private Type TGroupedDatabaseChanges
     Items As Collection
 End Type
 
-Private This As TGroupedDatabaseChanges
+Private this As TGroupedDatabaseChanges
 
 ' Properties
 '@DefaultMember
 Public Property Get Items() As Collection
 Attribute Items.VB_UserMemId = 0
-    Set Items = This.Items
+    Set Items = this.Items
 End Property
 
 Public Property Set Items(ByVal RHS As Collection)
-    Set This.Items = RHS
+    Set this.Items = RHS
 End Property
 
 ' Ctor

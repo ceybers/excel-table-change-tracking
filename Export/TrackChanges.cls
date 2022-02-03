@@ -19,37 +19,37 @@ Private Type TTrackChanges
     Changes As FieldChanges
 End Type
 
-Private This As TTrackChanges
+Private this As TTrackChanges
 
 ' Properties
 Public Property Get HasChanges() As Boolean
-    If This.Changes Is Nothing Then Exit Property
-    HasChanges = This.Changes.Items.Count > 0
+    If this.Changes Is Nothing Then Exit Property
+    HasChanges = this.Changes.Items.Count > 0
 End Property
 
 Public Property Get WorkingTable() As ListObject
-    Set WorkingTable = This.WorkingTable
+    Set WorkingTable = this.WorkingTable
 End Property
 
 Public Property Set WorkingTable(ByVal RHS As ListObject)
-    Set This.WorkingTable = RHS
+    Set this.WorkingTable = RHS
 End Property
 
 Public Property Get BeforeWorksheet() As Worksheet
-    Set BeforeWorksheet = This.BeforeWorksheet
+    Set BeforeWorksheet = this.BeforeWorksheet
 End Property
 
 Public Property Set BeforeWorksheet(ByVal RHS As Worksheet)
-    Set This.BeforeWorksheet = RHS
-    This.BeforeArray = RHS.UsedRange.Value2
+    Set this.BeforeWorksheet = RHS
+    this.BeforeArray = RHS.UsedRange.Value2
 End Property
 
 Public Property Get BeforeArray() As Variant
-    BeforeArray = This.BeforeArray
+    BeforeArray = this.BeforeArray
 End Property
 
 Public Property Get Changes() As FieldChanges
-    Set Changes = This.Changes
+    Set Changes = this.Changes
 End Property
 
 ' Public Methods
@@ -57,29 +57,39 @@ Public Sub StartTracking()
     ResetTracking
     
     Dim arr As Variant
-    arr = This.WorkingTable.Range.Value2
+    arr = this.WorkingTable.Range.Value2
     
     Dim rng As Range
-    Set rng = This.BeforeWorksheet.Cells(1, 1)
+    Set rng = this.BeforeWorksheet.Cells(1, 1)
     Set rng = rng.Resize(UBound(arr, 1), UBound(arr, 2))
+    
+    SetNumberFormatInBeforeWorksheet
+    
     rng.Value2 = arr
     
-    This.WorkingTable.HeaderRowRange.Interior.Color = READ_WRITE_COLOR
+    HighlightHeaders True 'this.WorkingTable.HeaderRowRange.Interior.Color = READ_WRITE_COLOR
     
     LockFields
 End Sub
 
-Public Sub CalculateChanges()
-    Debug.Assert Not This.BeforeWorksheet Is Nothing
-    Debug.Assert Not This.WorkingTable Is Nothing
+Private Sub SetNumberFormatInBeforeWorksheet()
+    Dim i As Long
+    For i = 1 To this.WorkingTable.ListColumns.Count
+        BeforeWorksheet.Columns(i).NumberFormat = this.WorkingTable.ListColumns(i).DataBodyRange.Cells(1, 1).NumberFormat
+    Next i
+End Sub
 
-    This.BeforeArray = This.BeforeWorksheet.UsedRange.Value2
+Public Sub CalculateChanges()
+    Debug.Assert Not this.BeforeWorksheet Is Nothing
+    Debug.Assert Not this.WorkingTable Is Nothing
+
+    this.BeforeArray = this.BeforeWorksheet.UsedRange.Value2
     
     If CompareHeadings And CompareKeys Then
-        Set This.Changes = New FieldChanges
-        With This.Changes
-            Set .Working = This.WorkingTable
-            Set .Before = This.BeforeWorksheet
+        Set this.Changes = New FieldChanges
+        With this.Changes
+            Set .Working = this.WorkingTable
+            Set .Before = this.BeforeWorksheet
             .Compare
         End With
     End If
@@ -88,29 +98,50 @@ Public Sub CalculateChanges()
 End Sub
 
 Public Sub ResetTracking()
-    This.BeforeWorksheet.Cells.Clear
-    This.WorkingTable.Range.Interior.Color = xlNone
-    This.WorkingTable.HeaderRowRange.Interior.Color = xlNone
+    this.BeforeWorksheet.Cells.Clear
+    'this.WorkingTable.Range.Interior.Color = xlNone
     
     UnlockFields
+    
+    'this.WorkingTable.HeaderRowRange.Interior.Color = xlNone
+    HighlightHeaders False
 End Sub
 
 ' Private Methods
+Private Sub HighlightHeaders(ByVal Enable As Boolean)
+     Dim fc As FormatCondition
+    If Enable Then
+       
+        Set fc = this.WorkingTable.HeaderRowRange.FormatConditions.Add(Type:=xlExpression, Formula1:="=TRUE")
+        With fc
+            .SetFirstPriority
+            .Interior.Color = READ_WRITE_COLOR
+            .Font.Color = RGB(255, 255, 255)
+        End With
+    Else
+        For Each fc In this.WorkingTable.HeaderRowRange.FormatConditions
+            If fc.Formula1 = "=TRUE" Then
+                fc.Delete
+            End If
+        Next fc
+    End If
+End Sub
+
 Private Function CompareKeys() As Boolean
     CompareKeys = False
     
-    If IsEmpty(This.BeforeArray) Then
+    If IsEmpty(this.BeforeArray) Then
         'MsgBox "No tracking history found!", vbExclamation + vbOKOnly
         Exit Function
     End If
     
     Dim rowCount As Long
     rowCount = UBound(BeforeArray, 1)
-    If (This.WorkingTable.ListRows.Count + 1) <> UBound(This.BeforeArray, 1) Then Exit Function
+    If (this.WorkingTable.ListRows.Count + 1) <> UBound(this.BeforeArray, 1) Then Exit Function
 
     Dim i As Long
     For i = 2 To rowCount
-        If This.WorkingTable.DataBodyRange.Cells(i - 1, 1).Value2 <> This.BeforeArray(i, 1) Then
+        If this.WorkingTable.DataBodyRange.Cells(i - 1, 1).Value2 <> this.BeforeArray(i, 1) Then
             Exit Function
         End If
     Next i
@@ -121,7 +152,7 @@ End Function
 ' Private Methods
 Private Function CompareHeadings() As Boolean
     'Debug.Assert IsEmpty(This.BeforeArray) = False
-    If IsEmpty(This.BeforeArray) Then
+    If IsEmpty(this.BeforeArray) Then
         'MsgBox "No tracking history found!", vbExclamation + vbOKOnly
         Exit Function
     End If
@@ -129,12 +160,12 @@ Private Function CompareHeadings() As Boolean
     CompareHeadings = False
     
     Dim columnCount As Long
-    columnCount = UBound(This.BeforeArray, 2)
-    If This.WorkingTable.ListColumns.Count <> UBound(This.BeforeArray, 2) Then Exit Function
+    columnCount = UBound(this.BeforeArray, 2)
+    If this.WorkingTable.ListColumns.Count <> UBound(this.BeforeArray, 2) Then Exit Function
 
     Dim i As Long
     For i = 1 To columnCount
-        If WorkingTable.HeaderRowRange.Cells(1, i).Value2 <> This.BeforeArray(1, i) Then
+        If WorkingTable.HeaderRowRange.Cells(1, i).Value2 <> this.BeforeArray(1, i) Then
             Exit Function
         End If
     Next i
@@ -144,22 +175,22 @@ End Function
 
 Private Sub UnlockFields()
     Dim ws As Worksheet
-    Set ws = This.WorkingTable.Parent
+    Set ws = this.WorkingTable.Parent
     ws.Unprotect
 End Sub
 
 Private Sub LockFields()
     Dim ws As Worksheet
-    Set ws = This.WorkingTable.Parent
+    Set ws = this.WorkingTable.Parent
     ws.Unprotect
     
     Dim rng As Range
-    Set rng = This.WorkingTable.DataBodyRange
+    Set rng = this.WorkingTable.DataBodyRange
     If rng.Columns.Count = 1 Then Exit Sub
     
-    This.WorkingTable.Range.Locked = True
+    this.WorkingTable.Range.Locked = True
     
-    Set rng = rng.Offset(0, 1).Resize(rng.Rows.Count, rng.Columns.Count - 1)
+    Set rng = rng.Offset(0, 1).Resize(rng.rows.Count, rng.Columns.Count - 1)
     rng.Locked = False
     
     ws.Protect AllowFiltering:=True, UserInterfaceOnly:=True

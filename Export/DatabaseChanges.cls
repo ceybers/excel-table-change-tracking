@@ -17,26 +17,26 @@ Private Type TDatabaseChanges
     DistinctPairs As Scripting.Dictionary
 End Type
 
-Private This As TDatabaseChanges
+Private this As TDatabaseChanges
 
 ' Properties
 Public Property Get Items() As Collection
-    Set Items = This.Items
+    Set Items = this.Items
 End Property
 
 Public Property Get DistinctKeys() As Scripting.Dictionary
-    Set DistinctKeys = This.DistinctKeys
+    Set DistinctKeys = this.DistinctKeys
 End Property
 
 Public Property Get DistinctPairs() As Scripting.Dictionary
-    Set DistinctPairs = This.DistinctPairs
+    Set DistinctPairs = this.DistinctPairs
 End Property
 
 ' Ctor
 Private Sub Class_Initialize()
-    Set This.Items = New Collection
-    Set This.DistinctKeys = New Scripting.Dictionary
-    Set This.DistinctPairs = New Scripting.Dictionary
+    Set this.Items = New Collection
+    Set this.DistinctKeys = New Scripting.Dictionary
+    Set this.DistinctPairs = New Scripting.Dictionary
 End Sub
 
 ' Public Methods

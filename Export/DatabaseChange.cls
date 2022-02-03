@@ -21,71 +21,71 @@ Private Type TDatabaseChange
     Value As Variant
 End Type
 
-Private This As TDatabaseChange
+Private this As TDatabaseChange
 
 ' Properties
 Public Property Get KeyName() As String
-    KeyName = This.KeyName
+    KeyName = this.KeyName
 End Property
 
 Public Property Let KeyName(ByVal RHS As String)
-    This.KeyName = RHS
+    this.KeyName = RHS
 End Property
 
 Public Property Get KeyFK() As Long
-    KeyFK = This.KeyFK
+    KeyFK = this.KeyFK
 End Property
 
 Public Property Let KeyFK(ByVal RHS As Long)
-    This.KeyFK = RHS
+    this.KeyFK = RHS
 End Property
 
 Public Property Get trackFK() As Long
-    trackFK = This.trackFK
+    trackFK = this.trackFK
 End Property
 
 Public Property Let trackFK(ByVal RHS As Long)
-    This.trackFK = RHS
+    this.trackFK = RHS
 End Property
 
 Public Property Get CommitFK() As Long
-    CommitFK = This.CommitFK
+    CommitFK = this.CommitFK
 End Property
 
 Public Property Let CommitFK(ByVal RHS As Long)
-    This.CommitFK = RHS
+    this.CommitFK = RHS
 End Property
 
 Public Property Get TableName() As String
-    TableName = This.TableName
+    TableName = this.TableName
 End Property
 
 Public Property Let TableName(ByVal RHS As String)
-    This.TableName = RHS
+    this.TableName = RHS
 End Property
 
 Public Property Get FieldName() As String
-    FieldName = This.FieldName
+    FieldName = this.FieldName
 End Property
 
 Public Property Let FieldName(ByVal RHS As String)
-    This.FieldName = RHS
+    this.FieldName = RHS
 End Property
 
 Public Property Get Value() As Variant
-    If IsObject(This.Value) Then
-        Set Value = This.Value
+    If IsObject(this.Value) Then
+        Set Value = this.Value
     Else
-        Value = This.Value
+        Value = this.Value
     End If
 End Property
 
 Public Property Let Value(ByVal RHS As Variant)
-    This.Value = RHS
+    this.Value = RHS
 End Property
 
 Public Property Set Value(ByVal RHS As Variant)
-    Set This.Value = RHS
+    Set this.Value = RHS
 End Property
 
 ' Public Methods
