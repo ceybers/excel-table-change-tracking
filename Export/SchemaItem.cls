@@ -7,7 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder("Objects")
+'@Folder("DatabaseChanges")
 Option Explicit
 
 Private Type TSchemaItem
@@ -17,40 +17,42 @@ Private Type TSchemaItem
     VarType As Long
 End Type
 
-Private this As TSchemaItem
+Private This As TSchemaItem
 
+' Properties
 Public Property Get ColumnName() As String
-    ColumnName = this.ColumnName
+    ColumnName = This.ColumnName
 End Property
 
 Public Property Get TableName() As String
-    TableName = this.TableName
+    TableName = This.TableName
 End Property
 
 Public Property Let TableName(ByVal RHS As String)
-    this.TableName = RHS
+    This.TableName = RHS
 End Property
 
 Public Property Get FieldName() As String
-    FieldName = this.FieldName
+    FieldName = This.FieldName
 End Property
 
 Public Property Let FieldName(ByVal RHS As String)
-    this.FieldName = RHS
+    This.FieldName = RHS
 End Property
 
 Public Property Get VarType() As Long
-    VarType = this.VarType
+    VarType = This.VarType
 End Property
 
 Public Property Let VarType(ByVal RHS As Long)
-    this.VarType = RHS
+    This.VarType = RHS
 End Property
 
+' Public Methods
 Public Sub SetFromString(ByVal Payload As String)
     Dim SplitPayload As Variant
     SplitPayload = Split(Payload, ",")
-    With this
+    With This
         .ColumnName = SplitPayload(0)
         .TableName = SplitPayload(1)
         .FieldName = SplitPayload(2)
@@ -58,8 +60,8 @@ Public Sub SetFromString(ByVal Payload As String)
     End With
 End Sub
 
-Public Sub SetValues(ColumnName As String, TableName As String, FieldName As String, VarType As Long)
-    With this
+Public Sub SetValues(ByVal ColumnName As String, ByVal TableName As String, ByVal FieldName As String, ByVal VarType As Long)
+    With This
         .ColumnName = ColumnName
         .TableName = TableName
         .FieldName = FieldName
@@ -72,5 +74,5 @@ Public Function Self() As SchemaItem
 End Function
 
 Public Function ToString() As String
-    ToString = this.ColumnName & "," & this.TableName & "," & this.FieldName & "," & this.VarType
+    ToString = This.ColumnName & "," & This.TableName & "," & This.FieldName & "," & This.VarType
 End Function

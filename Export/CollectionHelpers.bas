@@ -1,6 +1,7 @@
-Attribute VB_Name = "modCommon"
-'@Folder "Common"
+Attribute VB_Name = "CollectionHelpers"
+'@Folder "HelperFunctions"
 Option Explicit
+Option Private Module
 
 Public Function CollectionClear(ByVal coll As Collection) As Boolean
     If coll Is Nothing Then Exit Function

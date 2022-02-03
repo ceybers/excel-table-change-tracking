@@ -8,30 +8,32 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '@PredeclaredId
-'@Folder("Objects")
+'@Folder("GroupedDatabaseChanges")
 Option Explicit
 
 Private Type TGroupedDatabaseChanges
     Items As Collection
 End Type
 
-Private this As TGroupedDatabaseChanges
+Private This As TGroupedDatabaseChanges
 
+' Properties
 '@DefaultMember
-'@Enumerator
 Public Property Get Items() As Collection
 Attribute Items.VB_UserMemId = 0
-    Set Items = this.Items
+    Set Items = This.Items
 End Property
 
 Public Property Set Items(ByVal RHS As Collection)
-    Set this.Items = RHS
+    Set This.Items = RHS
 End Property
 
+' Ctor
 Private Sub Class_Initialize()
     Set Items = New Collection
 End Sub
 
+' Public Methods
 Public Function Create(ByVal dbChanges As DatabaseChanges) As GroupedDatabaseChanges
     Set Create = New GroupedDatabaseChanges
     Create.Group dbChanges
@@ -42,7 +44,7 @@ Public Sub Group(ByVal dbChanges As DatabaseChanges)
     For Each pairVar In dbChanges.DistinctPairs
         With New GroupedDatabaseChange
             .Name = pairVar
-            Items.Add .Self, key:=pairVar
+            Items.Add .Self, Key:=pairVar
             .Load dbChanges
         End With
     Next pairVar

@@ -7,17 +7,23 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder("Objects")
+'@Folder "Commits"
 Option Explicit
 
 Private CommitKeys As Scripting.Dictionary
 
+' Public Methods
 Public Function Self() As Commits
     Set Self = Me
 End Function
 
-Public Sub Load(ByVal dbChanges As DatabaseChanges)
+Public Sub CreatePerKey(ByVal dbChanges As DatabaseChanges)
     GetKeysFromAccess dbChanges.DistinctKeys
+    Set CommitKeys = dbChanges.DistinctKeys
+End Sub
+
+Public Sub CreatePerSession(ByVal dbChanges As DatabaseChanges)
+    GetKeysFromAccessSingle dbChanges.DistinctKeys
     Set CommitKeys = dbChanges.DistinctKeys
 End Sub
 
@@ -25,23 +31,30 @@ Public Sub Apply(ByVal groupedChanges2 As GroupedDatabaseChanges)
     groupedChanges2.UpdateCommitKeys CommitKeys
 End Sub
 
+' Private Methods
 Private Sub GetKeysFromAccess(ByVal dict As Scripting.Dictionary)
-    Dim Connection As ADODB.Connection
-    Set Connection = New ADODB.Connection
-    Connection.Open ConnectionString:=Access.GetConnectionString
-   
     Dim titlePrefix As String
     Dim title As String
-    titlePrefix = "Untitled Commit @ " & Format(Now(), "yyyy/mm/dd hh:MM") & " for "
+    titlePrefix = "Untitled Commit @ " & Format$(Now(), "yyyy/mm/dd hh:MM") & " for "
 
-    Dim key As Variant
-    For Each key In dict.Keys
-        title = titlePrefix & CStr(key)
-        dict(key) = CreateCommitRecord(Connection, title, "PerKey")
-    Next key
+    Dim Key As Variant
+    For Each Key In dict.Keys
+        title = titlePrefix & CStr(Key)
+        dict(Key) = CreateCommitRecord(Access.GetConnection, title, "PerKey")
+    Next Key
+End Sub
+
+Private Sub GetKeysFromAccessSingle(ByVal dict As Scripting.Dictionary)
+    Dim title As String
+    title = "Untitled Commit @ " & Format$(Now(), "yyyy/mm/dd hh:MM")
     
-    Connection.Close
-    Set Connection = Nothing
+    Dim trackFK As Long
+    trackFK = CreateCommitRecord(Access.GetConnection, title, "PerSession")
+    
+    Dim Key As Variant
+    For Each Key In dict.Keys
+        dict(Key) = trackFK
+    Next Key
 End Sub
 
 Private Function CreateCommitRecord(ByVal db As ADODB.Connection, ByVal title As String, ByVal strategy As String) As Long

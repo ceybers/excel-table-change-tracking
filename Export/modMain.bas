@@ -2,121 +2,89 @@ Attribute VB_Name = "modMain"
 '@Folder("VBAProject")
 Option Explicit
 
-Private Const BEFORE_SHEET_NAME As String = "Before"
+Private Const BEFORE_SHEET_SUFFIX As String = "_CHGTRK"
 
-Private WorkingTable As ListObject
-Private BeforeWorksheet As Worksheet
-Private BeforeArray As Variant
-Private Changes As FieldChanges
-
+' Public Methods
 Public Sub Start()
-    Set WorkingTable = ThisWorkbook.Worksheets(1).ListObjects(1)
+    Dim tc As TrackChanges
+    Set tc = GetTrackChangesObject
+    If Not tc Is Nothing Then
+        tc.StartTracking
+    End If
+    'ThisWorkbook.Worksheets(1).ListObjects(1).Parent.Range("B2").Value2 = ThisWorkbook.Worksheets(1).ListObjects(1).Parent.Range("B2").Value2 & "z"
+End Sub
+
+Public Sub HighlightChanges()
+    Dim tc As TrackChanges
+    Set tc = GetTrackChangesObject
     
-    SaveToBefore
-    
-    WorkingTable.Range.Interior.Color = xlNone
-    LockFields
+    tc.CalculateChanges
 End Sub
 
 Public Sub Save()
-    Set WorkingTable = ThisWorkbook.Worksheets(1).ListObjects(1)
-    BeforeArray = LoadFromBefore
+    Dim tc As TrackChanges
+    Set tc = GetTrackChangesObject
     
-    UnlockFields
+    HighlightChanges
     
-    If CompareHeadings And CompareKeys Then
-        WorkingTable.Range.Interior.Color = xlNone
-        
-        Set Changes = New FieldChanges
-        Set Changes.Working = WorkingTable
-        Set Changes.Before = ThisWorkbook.Worksheets(BEFORE_SHEET_NAME)
-        Changes.Compare
-        
-        Dim dbChanges As DatabaseChanges
-        Set dbChanges = DatabaseChanges.Create(New DatabaseChangeFactory, Changes)
-        
-        Dim groupedChanges2 As GroupedDatabaseChanges
-        Set groupedChanges2 = GroupedDatabaseChanges.Create(dbChanges)
-        
-        With New Commits
-            .Load dbChanges
-            .Apply groupedChanges2
-        End With
-        
-        SaveGroupedChangesToAccess groupedChanges2
+    If tc.HasChanges = False Then
+        MsgBox "No changes found!", vbInformation
+        Exit Sub
     End If
-End Sub
-
-Private Sub UnlockFields()
-    WorkingTable.Parent.Unprotect
-End Sub
-
-Private Sub LockFields()
-    Dim rng As Range
-    Set rng = WorkingTable.DataBodyRange
-    If rng.Columns.Count = 1 Then Exit Sub
     
-    WorkingTable.Range.Locked = True
+    If vbNo = MsgBox("Update Access DB with " & tc.Changes.Items.Count & " change(s)?", vbInformation + vbYesNo + vbDefaultButton1) Then
+        Exit Sub
+    End If
     
-    Set rng = rng.Offset(0, 1).Resize(rng.Rows.Count, rng.Columns.Count - 1)
-    rng.Locked = False
+    tc.Changes.Compare
     
-    WorkingTable.Parent.Protect AllowFiltering:=True, UserInterfaceOnly:=True
-End Sub
-
-Private Function CompareKeys() As Boolean
-    Dim After As Variant
-    Dim rowCount As Long
+    Dim dbChanges As DatabaseChanges
+    Set dbChanges = DatabaseChanges.Create(New DatabaseChangeFactory, tc.Changes)
     
-    CompareKeys = False
-    rowCount = UBound(BeforeArray, 1)
-    If (WorkingTable.ListRows.Count + 1) <> UBound(BeforeArray, 1) Then Exit Function
-
-    Dim i As Long
-    For i = 2 To rowCount
-        If WorkingTable.DataBodyRange.Cells(i - 1, 1).Value2 <> BeforeArray(i, 1) Then
-            Exit Function
+    Dim grpDbChanges As GroupedDatabaseChanges
+    Set grpDbChanges = GroupedDatabaseChanges.Create(dbChanges)
+    
+    With New Commits
+        If tc.Changes.Items.Count > 1 Then
+            If vbYes = MsgBox("Create individual commits for each key?", vbInformation + vbYesNo) Then
+                .CreatePerKey dbChanges
+            Else
+                .CreatePerSession dbChanges
+            End If
+        Else
+            .CreatePerKey dbChanges
         End If
-    Next i
+        
+        .Apply grpDbChanges
+    End With
     
-    CompareKeys = True
-End Function
-
-Private Function CompareHeadings()
-    Dim After As Variant
-    Dim columnCount As Long
+    SaveGroupedChangesToAccess grpDbChanges
     
-    CompareHeadings = False
-    columnCount = UBound(BeforeArray, 2)
-    If WorkingTable.ListColumns.Count <> UBound(BeforeArray, 2) Then Exit Function
-
-    Dim i As Long
-    For i = 1 To columnCount
-        If WorkingTable.HeaderRowRange.Cells(1, i).Value2 <> BeforeArray(1, i) Then
-            Exit Function
-        End If
-    Next i
+    Access.GetConnection DoClose:=True
     
-    CompareHeadings = True
-End Function
+    tc.ResetTracking
+End Sub
 
-Private Function LoadFromBefore() As Variant
+' Private Methods
+Private Function GetTrackChangesObject() As TrackChanges
+    Static tc As TrackChanges
+    
+    If ActiveSheet.ListObjects.Count <> 1 Then
+        MsgBox "Cannot find a table to track!", vbCritical + vbOKOnly
+        Exit Function
+    End If
+    
+    Dim lo As ListObject
+    Set lo = ActiveSheet.ListObjects(1)
+    
     Dim ws As Worksheet
-    Set ws = AddOrGetWorksheet(BEFORE_SHEET_NAME)
-    If ws.UsedRange.Cells.Count = 0 Then Exit Function
-    LoadFromBefore = ws.UsedRange.Value2
+    Set ws = AddOrGetWorksheet(lo & BEFORE_SHEET_SUFFIX)
+    
+    If tc Is Nothing Then
+        Set tc = New TrackChanges
+        Set tc.BeforeWorksheet = ws
+        Set tc.WorkingTable = lo
+    End If
+    
+    Set GetTrackChangesObject = tc
 End Function
-
-Private Sub SaveToBefore()
-    Set BeforeWorksheet = AddOrGetWorksheet(BEFORE_SHEET_NAME)
-    
-    BeforeWorksheet.Cells.Clear
-    
-    Dim arr As Variant
-    arr = WorkingTable.Range.Value2
-    
-    Dim rng As Range
-    Set rng = BeforeWorksheet.Cells(1, 1)
-    Set rng = rng.Resize(UBound(arr, 1), UBound(arr, 2))
-    rng.Value2 = arr
-End Sub

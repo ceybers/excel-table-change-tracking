@@ -7,7 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder("Objects")
+'@Folder "GroupedDatabaseChanges"
 Option Explicit
 
 Private Type TGroupedDatabaseChange
@@ -16,57 +16,58 @@ Private Type TGroupedDatabaseChange
     KeyFK As Long
     TableName As String
     CommitFK As Long
-    TrackFK As Long
+    trackFK As Long
     Items As Collection
 End Type
 
-Private this As TGroupedDatabaseChange
+Private This As TGroupedDatabaseChange
 
+' Properties
 Public Property Get Name() As String
-    Name = this.Name
+    Name = This.Name
 End Property
 
 Public Property Let Name(ByVal RHS As String)
-    this.Name = RHS
+    This.Name = RHS
 End Property
 
 Public Property Get KeyName() As String
-    KeyName = this.KeyName
+    KeyName = This.KeyName
 End Property
 
 Public Property Get KeyFK() As Long
-    KeyFK = this.KeyFK
+    KeyFK = This.KeyFK
 End Property
 
 Public Property Get TableName() As String
-    TableName = this.TableName
+    TableName = This.TableName
 End Property
 
 Public Property Get CommitFK() As Long
-    CommitFK = this.CommitFK
+    CommitFK = This.CommitFK
 End Property
 
 Public Property Let CommitFK(ByVal RHS As Long)
-    this.CommitFK = RHS
+    This.CommitFK = RHS
 End Property
 
-Public Property Get TrackFK() As Long
-    TrackFK = this.TrackFK
+Public Property Get trackFK() As Long
+    trackFK = This.trackFK
 End Property
 
-Public Property Let TrackFK(ByVal RHS As Long)
-    this.TrackFK = RHS
+Public Property Let trackFK(ByVal RHS As Long)
+    This.trackFK = RHS
 End Property
 
 Public Property Get Items() As Collection
-    Set Items = this.Items
+    Set Items = This.Items
 End Property
 
 Private Sub Class_Initialize()
-    Set this.Items = New Collection
+    Set This.Items = New Collection
 End Sub
 
-' ---
+' Public Methods
 Public Function Self() As GroupedDatabaseChange
     Set Self = Me
 End Function
@@ -82,14 +83,15 @@ Public Sub Load(ByVal dbChanges As DatabaseChanges)
     SetGroupFromFirstItem
 End Sub
 
+' Private Methods
 Private Sub SetGroupFromFirstItem()
     If Items.Count > 0 Then
         Dim firstItem As DatabaseChange
         Set firstItem = Items(1)
         With firstItem
-            this.KeyName = .KeyName
-            this.KeyFK = .KeyFK
-            this.TableName = .TableName
+            This.KeyName = .KeyName
+            This.KeyFK = .KeyFK
+            This.TableName = .TableName
         End With
     End If
 End Sub

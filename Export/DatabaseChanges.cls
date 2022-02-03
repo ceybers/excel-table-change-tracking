@@ -8,19 +8,38 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '@PredeclaredId
-'@Folder("Objects")
+'@Folder "DatabaseChanges"
 Option Explicit
 
-Public Items As Collection
-Public DistinctKeys As Scripting.Dictionary
-Public DistinctPairs As Scripting.Dictionary
+Private Type TDatabaseChanges
+    Items As Collection
+    DistinctKeys As Scripting.Dictionary
+    DistinctPairs As Scripting.Dictionary
+End Type
 
+Private This As TDatabaseChanges
+
+' Properties
+Public Property Get Items() As Collection
+    Set Items = This.Items
+End Property
+
+Public Property Get DistinctKeys() As Scripting.Dictionary
+    Set DistinctKeys = This.DistinctKeys
+End Property
+
+Public Property Get DistinctPairs() As Scripting.Dictionary
+    Set DistinctPairs = This.DistinctPairs
+End Property
+
+' Ctor
 Private Sub Class_Initialize()
-    Set Items = New Collection
-    Set DistinctKeys = New Scripting.Dictionary
-    Set DistinctPairs = New Scripting.Dictionary
+    Set This.Items = New Collection
+    Set This.DistinctKeys = New Scripting.Dictionary
+    Set This.DistinctPairs = New Scripting.Dictionary
 End Sub
 
+' Public Methods
 Public Function Create(ByVal translator As DatabaseChangeFactory, ByVal FieldChanges As FieldChanges) As DatabaseChanges
     Set Create = New DatabaseChanges
     Create.Translate translator, FieldChanges
@@ -38,6 +57,6 @@ Public Sub Translate(ByVal translator As DatabaseChangeFactory, ByVal FieldChang
     translator.TranslateChanges Me, FieldChanges
 End Sub
 
-Public Function Add(ByVal dbChange As DatabaseChange)
-    Items.Add dbChange ', Key
-End Function
+Public Sub Add(ByVal dbChange As DatabaseChange)
+    Items.Add dbChange 'TODO Use a key?
+End Sub
