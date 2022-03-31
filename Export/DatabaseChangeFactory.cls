@@ -13,7 +13,7 @@ Attribute VB_Description = "Loads Schema and KeyName->KeyFK translation table. P
 Option Explicit
 
 Private Type TState
-    Schema As Collection
+    schema As Collection
     Keys As Collection
     LookupTables As LookupTables
 End Type
@@ -22,10 +22,10 @@ Private this As TState
 
 ' Ctor
 Private Sub Class_Initialize()
-    Set this.Schema = New Collection
+    Set this.schema = New Collection
     Set this.Keys = New Collection
     Set this.LookupTables = New LookupTables
-    LoadSchema
+    LoadSchema this.schema
     LoadKeys
     this.LookupTables.Load Access.GetConnection
 End Sub
@@ -40,7 +40,7 @@ Public Function TranslateChange(ByVal FieldChange As FieldChange) As DatabaseCha
     
     Dim result As New DatabaseChange
     Set result = New DatabaseChange
-    Set SchemaItem = this.Schema(FieldChange.ColumnName)
+    Set SchemaItem = this.schema(FieldChange.ColumnName)
     
     With result
         .KeyName = FieldChange.Key
@@ -56,7 +56,7 @@ Public Function TranslateChange(ByVal FieldChange As FieldChange) As DatabaseCha
         End If
         
         Dim lkpTable As String
-        lkpTable = this.Schema(FieldChange.ColumnName).Lookup
+        lkpTable = this.schema(FieldChange.ColumnName).Lookup
         If lkpTable <> vbNullString Then
             .Value = CLng(this.LookupTables.Items(lkpTable).Items(FieldChange.After))
         End If
@@ -85,22 +85,6 @@ Public Sub TranslateChanges(ByVal dbChanges As DatabaseChanges, ByVal FieldChang
 End Sub
 
 ' Private Methods
-Private Sub LoadSchema()
-    Dim InputLine As String
-    
-    Set this.Schema = New Collection
-    
-    Open SCHEMA_PATH For Input As #1
-    Do Until EOF(1)
-        Line Input #1, InputLine
-        With New SchemaItem
-            .SetFromString InputLine
-            this.Schema.Add Item:=.Self, Key:=.ColumnName
-        End With
-    Loop
-    Close #1
-End Sub
-
 Private Sub LoadKeys()
     CollectionClear this.Keys
     
@@ -139,7 +123,7 @@ Private Function CheckColumns(ByVal FieldChanges As FieldChanges) As Boolean
     
     Dim fc As FieldChange
     For Each fc In FieldChanges.Items
-        If CollectionExists2(fc.ColumnName, this.Schema) = False Then
+        If CollectionExists2(fc.ColumnName, this.schema) = False Then
             MsgBox "Orphaned column found = '" & fc.ColumnName & "'", vbExclamation + vbOKOnly
             CheckColumns = False
             Exit Function

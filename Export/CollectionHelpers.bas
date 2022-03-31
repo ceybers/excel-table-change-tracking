@@ -14,3 +14,13 @@ Public Function CollectionClear(ByVal coll As Collection) As Boolean
     CollectionClear = True
 End Function
 
+Public Function CollectionExists(ByVal coll As Collection, ByVal criteria As Variant) As Boolean
+    Dim v As Variant
+    For Each v In coll
+        If v = criteria Then
+            CollectionExists = True
+            Exit Function
+        End If
+    CollectionExists = False
+End Function
+

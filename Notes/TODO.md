@@ -11,6 +11,8 @@
 - [*] Change header formatting from .Interior.Color to ConditionalFormatting where =TRUE
 - [*] "Number Stored as Text" is VarType(8) on Working but VarType(5) on BeforeWS
 - [*] Accomodate Lookup Columns on Access DB
+- [*] ~~Ignore list for columns~~ Only look for changes in columns included in the schema
+- [*] Only highlight headers for columns in the schema. Also add comment with the table field etc.
 - [ ] Need to handle 1:m relations, e.g. MaintHistoryLatest -> MaintFistoryFEI -> picks up ValidFrom and Reference from tblCommits
       Might need to downgrade to separate simple tables with implicit fields for date and refs
 - [ ] Consider loading table and field names from meta* tables from schema
@@ -18,6 +20,5 @@
 - [ ] User Interface
 - [ ] Get list of orphaned keys
 - [ ] Get list of orphaned columns
-- [ ] Ignore list for columns
 - [ ] Revert to Before state (Undo all changes)
 - [ ] Commit all to database (keyframe vs delta frame)

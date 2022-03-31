@@ -54,7 +54,8 @@ End Property
 
 ' Public Methods
 Public Sub StartTracking()
-    ResetTracking
+    Debug.Assert Not this.WorkingTable Is Nothing
+    'ResetTracking
     
     Dim arr As Variant
     arr = this.WorkingTable.Range.Value2
@@ -105,25 +106,61 @@ Public Sub ResetTracking()
     
     'this.WorkingTable.HeaderRowRange.Interior.Color = xlNone
     HighlightHeaders False
+    
+    Set this.BeforeWorksheet = Nothing
+    Set this.WorkingTable = Nothing
 End Sub
 
 ' Private Methods
+' TODO Refactor this
 Private Sub HighlightHeaders(ByVal Enable As Boolean)
-     Dim fc As FormatCondition
+    Dim schema As Collection
+    Set schema = New Collection
+    LoadSchema schema
+    
+    Dim headerRange As Range
+    Dim unionRange As Range
+    Dim intersectRange As Range
+    
+    Set headerRange = this.WorkingTable.HeaderRowRange
+    
+    Dim lc As ListColumn
+    For Each lc In this.WorkingTable.ListColumns
+        Dim si As SchemaItem
+        For Each si In schema
+            If si.ColumnName = lc.Name Then
+                Set intersectRange = Application.Intersect(lc.Range, headerRange)
+                If Not intersectRange Is Nothing Then
+                    If Not intersectRange.Comment Is Nothing Then
+                        intersectRange.Comment.Delete
+                    End If
+                    intersectRange.AddComment si.ToString
+                    AppendRange intersectRange, unionRange
+                End If
+            End If
+        Next si
+    Next lc
+    
+    Dim fc As FormatCondition
     If Enable Then
-       
-        Set fc = this.WorkingTable.HeaderRowRange.FormatConditions.Add(Type:=xlExpression, Formula1:="=TRUE")
+        Set fc = unionRange.FormatConditions.Add(Type:=xlExpression, Formula1:="=TRUE")
         With fc
             .SetFirstPriority
             .Interior.Color = READ_WRITE_COLOR
             .Font.Color = RGB(255, 255, 255)
         End With
     Else
+        ' TODO FIX This will crash Excel as the collection changes when deleting FCs.
         For Each fc In this.WorkingTable.HeaderRowRange.FormatConditions
             If fc.Formula1 = "=TRUE" Then
                 fc.Delete
             End If
         Next fc
+        For Each lc In this.WorkingTable.ListColumns
+            If Not lc.Range.Cells(1, 1).Comment Is Nothing Then
+                lc.Range.Cells(1, 1).Comment.Delete
+            End If
+        Next lc
     End If
 End Sub
 

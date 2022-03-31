@@ -59,7 +59,8 @@ End Sub
 
 Private Function CreateCommitRecord(ByVal db As ADODB.Connection, ByVal title As String, ByVal strategy As String) As Long
     Dim sql As String
-    sql = "INSERT INTO " & COMMITS_TABLE_NAME & " ([Title], [Strategy]) VALUES ('" & title & "', '" & strategy & "');"
+    'sql = "INSERT INTO " & COMMITS_TABLE_NAME & " ([Title], [Strategy]) VALUES ('" & title & "', '" & strategy & "');"
+    sql = "INSERT INTO " & COMMITS_TABLE_NAME & " ([Title]) VALUES ('" & title & "');"
     db.Execute sql
     
     Dim rs2 As ADODB.Recordset

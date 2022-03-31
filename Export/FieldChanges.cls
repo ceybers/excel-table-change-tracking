@@ -22,7 +22,6 @@ Private this As TFieldChanges
 ' Properties
 '@DefaultMember
 Public Property Get Items() As Collection
-Attribute Items.VB_UserMemId = 0
     Set Items = this.Items
 End Property
 
@@ -63,10 +62,22 @@ End Function
 Public Sub Compare()
     CollectionClear this.Items
     
+    Dim schema As Collection
+    Set schema = New Collection
+    LoadSchema schema
+            
     Dim lc As ListColumn
     For Each lc In this.Working.ListColumns
         If lc.DataBodyRange.HasFormula = False And lc.Index <> 1 Then ' TODO Allow key columns in other column index
-            CompareFieldsInColumn lc
+            Dim si As SchemaItem
+            Set si = Nothing
+            On Error Resume Next
+            Set si = schema(lc.Name)
+            On Error GoTo 0
+            
+            If Not si Is Nothing Then
+                CompareFieldsInColumn lc
+            End If
         End If
     Next lc
 End Sub

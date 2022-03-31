@@ -13,14 +13,6 @@ Public Sub Start()
     End If
     
     Exit Sub
-    Dim ws As Worksheet
-    Set ws = ThisWorkbook.Worksheets(1).ListObjects(1).Parent
-    ws.Range("B2").Value2 = ws.Range("B2").Value2 & "z"
-    If ws.Range("E2").Value2 = "Yes" Then
-        ws.Range("E2").Value2 = "No"
-    Else
-        ws.Range("E2").Value2 = "Yes"
-    End If
 End Sub
 
 Public Sub HighlightChanges()
@@ -95,6 +87,9 @@ Private Function GetTrackChangesObject() As TrackChanges
     
     If tc Is Nothing Then
         Set tc = New TrackChanges
+    End If
+    
+    If tc.WorkingTable Is Nothing Then
         Set tc.BeforeWorksheet = ws
         Set tc.WorkingTable = lo
     End If
